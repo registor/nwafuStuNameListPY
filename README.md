@@ -1,0 +1,2 @@
+# nwafuStuNameListPY
+这是一个使用用xpinyin+pgfplotstable结合CSV文件实现学生名单加注拼音的LaTeX项目。
