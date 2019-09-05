@@ -29,7 +29,7 @@
 \def\coursename{C语言程序设计}
 \def\courseid{1091102}
 \def\courseidx{2}
-\def\teacher{耿楠}
+\def\teacher{元始天尊}
 
 % 设置多音字的首选读音
 \setpinyin{解}{xie4}
@@ -44,7 +44,6 @@
 \setpinyin{翟}{zhai2}
 \setpinyin{查}{zha1}
 \setpinyin{盖}{ge3}
-\setpinyin{尉}{yu4}
 
 % 定义生成姓名加注拼音的点名册表格命令
 % 该命令有1个数据文件名参数，默认值取namelist.csv
@@ -83,7 +82,7 @@
     every head row/.style={
       before row={
         % \pgfplotstablecols为总列数
-        \multicolumn{\pgfplotstablecols}{c}{\bf\large 西北农林科技大学\semester{}季学期学生课程考勤表}\\      
+        \multicolumn{\pgfplotstablecols}{c}{\bf\large \LaTeX{}通天大学\semester{}季学期学生课程考勤表}\\      
         \multicolumn{\pgfplotstablecols}{l}{课程名称：
           \coursename{}\hfill 课程代码：\courseid{}\hfill 课序号：
           \courseidx{}\hfill 任课教师：\teacher{}}\\        
@@ -144,14 +143,20 @@
 
 \begin{document} %在document环境中撰写文档
 \pagestyle{empty}
-% 参数为学生名单数据文件
-% 注意：由于有参数默认值，所以需要用方括号
-\xpynamelist[namelist.csv] 
+% 参数为默认值
+\xpynamelist
 
 % 如果需要多个班级，请准备数据，
 % 用\newpage分页后，复制以上代码排版并更换数据文件
 \newpage
-\xpynamelist[namelist.csv]
+% 参数为学生名单数据文件
+% 注意：由于有参数默认值，所以需要用方括号
+\xpynamelist[namelist01.csv]
+
+\newpage
+% 参数为学生名单数据文件
+% 注意：由于有参数默认值，所以需要用方括号
+\xpynamelist[namelist02.csv]
 
 \end{document}
 
