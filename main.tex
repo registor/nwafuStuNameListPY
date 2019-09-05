@@ -1,17 +1,17 @@
 % 使用ctexart文档类（用XeLaTeX编译，直接支持中文）
-\documentclass{ctexart}
+\documentclass[fontset=windows]{ctexart}
 
 % 设置页面大小
 \usepackage{geometry}
 \geometry{% 
   paper=a4paper,
-  top=2.5cm,
-  bottom=2.1cm,
-  left=2.5cm,
-  right=2.5cm,
-  headheight=0.8cm,
-  headsep=0.7cm,
-  footskip=1.4cm,
+  top=1.3cm,
+  bottom=1.0cm,
+  left=1.0cm,
+  right=1.0cm,
+  headheight=0.0cm,
+  headsep=0.0cm,
+  footskip=0.0cm,
 } 
 
 % 载入拼音宏包
@@ -54,18 +54,19 @@
   \pgfplotstableset{
     col sep=comma,
     header=true,
-    font=\small,
+    %font=\small,
   }
   % 也可以提前读入文件，存入\loadedtable命名的内部数据结构中
   %\pgfplotstableread{namelist.csv}{\loadedtable}
   % 表格行高
   \def\arraystretch{0.8}
-  \setlength\extrarowheight{5pt}
-  %\newcommand\Tstrut{\rule{0pt}{3.6ex}}       % "top" strut
+  \setlength\extrarowheight{5pt}  
+  \newcolumntype{C}{>{\centering\arraybackslash}p{3mm}}% a centered fixed-width-column
   % 排版表格
   \pgfplotstabletypeset[
     % 各列局中，带表格竖线
-    column type/.add={|c|}{},% results in ’|c’
+    % column type/.add={|C|}{},% results in ’|c’
+    column type=|C,
     % 表头设计
     every head row/.style={
       before row={
@@ -76,11 +77,11 @@
           \courseidx{}\hfill 任课教师：\teacher{}}\\        
         \hline
         % 计算平时考勤登记列数
-        \pgfmathtruncatemacro{\len}{\pgfplotstablecols-3}
+        \pgfmathtruncatemacro{\len}{\pgfplotstablecols-4}
         % 将平时考勤登记列数存入\colslen宏
         \global\let\colslen\len
-        \multirow{2}{*}{学号}&\multirow{2}{*}{姓名}&\multirow{2}{*}{班级}&\multicolumn{\colslen}{c|}{平时考勤}\\
-        \cline{4-\pgfplotstablecols}
+        \multirow{2}{*}{序号}&\multirow{2}{*}{学号}&\multirow{2}{*}{姓名}&\multirow{2}{*}{班级}&\multicolumn{\colslen}{c|}{平时考勤}\\
+        \cline{5-\pgfplotstablecols}
       }, 
     },
     % 每行后画线
@@ -90,11 +91,16 @@
       % 考勤标记
       after row={
         \hline
-        \multicolumn{16}{|l|}{备注：出勤：$\surd$\ 缺勤：$\times$\ 迟
+        \multicolumn{\pgfplotstablecols}{|l|}{备注：出勤：$\surd$\ 缺勤：$\times$\ 迟
           到：$\bigtriangleup$\ 早退：$\bigcirc$\ 事假：
           $\bigtriangledown$\ 病假：$\oplus$}\\        
         \hline
       },
+    },
+    % 序号列
+    columns/idx/.style={string type,
+      column name={}, % 不输出标题名称
+      column type=|c,
     },
     % 学号列
     columns/stno/.style={string type,
@@ -118,15 +124,16 @@
     % 备注列
     columns/notes/.style={
       column name={备注},
-      column type=c,
+      column type=|c|,
     },  
   ]{#1}% 也可以使用提前读入的\loadedtable
 }
 
 \begin{document} %在document环境中撰写文档
 \pagestyle{empty}
-\xpynamelist
-% 如果需要多个班级，请准备数据后，用\newpage分页后，复制以上代码排版
+\xpynamelist[namelist.csv]
+% 如果需要多个班级，请准备数据后，
+% 用\newpage分页后，复制以上代码排版并更换数据文件
 
 \end{document}
 
