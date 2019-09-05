@@ -1,5 +1,5 @@
 % 使用ctexart文档类（用XeLaTeX编译，直接支持中文）
-\documentclass{ctexart}
+\documentclass[fontset=windows]{ctexart}
 
 % 设置页面大小
 \usepackage{geometry}
@@ -17,22 +17,26 @@
 % 载入拼音宏包
 \usepackage{xpinyin}
 % 设置拼音与正文字号比例
-\xpinyinsetup{ratio=0.5}
+\xpinyinsetup{ratio=0.8}
 
 % 从CSV文件生成表格宏包
 \usepackage{pgfplotstable}
 % 多行宏包
 \usepackage{multirow}
 
-% 数据格式设置
-\pgfplotstableset{
-  col sep=comma,
-  header=true,
-  font=\small,
-}
+% 考勤表基本信息宏
+\def\semester{2019秋}
+\def\coursename{C语言程序设计}
+\def\courseid{1091102}
+\def\courseidx{2}
+\def\teacher{耿楠}
 
+% 设置多音字的首选读音
+\setpinyin{解}{xie4}
+
+% 定义生成姓名加注拼音的点名册表格命令
+% 该命令有1个数据文件名参数，默认值取namelist.csv
 % =========================================================
-% 从namelist.csv中读入数据
 % 该文件第1行是标题后续各行是具体数据
 % 前3列分别是学号、姓名、班级，最后一列是备注，建议不要更改标题名称
 % 从namelist.csv文件中中数据可以为空，但逗号不能省略
@@ -45,68 +49,83 @@
 % ......
 % ,,,,,,,,,,,,,,,
 % =========================================================
-\pgfplotstableread{namelist.csv}{\loadedtable}
+\newcommand{\xpynamelist}[1][namelist.csv]{
+  % 数据格式设置
+  \pgfplotstableset{
+    col sep=comma,
+    header=true,
+    font=\small,
+  }
+  % 也可以提前读入文件，存入\loadedtable命名的内部数据结构中
+  %\pgfplotstableread{namelist.csv}{\loadedtable}
+  % 表格行高
+  \def\arraystretch{0.8}
+  \setlength\extrarowheight{5pt}
+  %\newcommand\Tstrut{\rule{0pt}{3.6ex}}       % "top" strut
+  % 排版表格
+  \pgfplotstabletypeset[
+    % 各列局中，带表格竖线
+    column type/.add={|c|}{},% results in ’|c’
+    % 表头设计
+    every head row/.style={
+      before row={
+        % \pgfplotstablecols为总列数
+        \multicolumn{\pgfplotstablecols}{c}{\bf\large 西北农林科技大学\semester{}季学期学生课程考勤表}\\      
+        \multicolumn{\pgfplotstablecols}{l}{课程名称：
+          \coursename{}\hfill 课程代码：\courseid{}\hfill 课序号：
+          \courseidx{}\hfill 任课教师：\teacher{}}\\        
+        \hline
+        % 计算平时考勤登记列数
+        \pgfmathtruncatemacro{\len}{\pgfplotstablecols-3}
+        % 将平时考勤登记列数存入\colslen宏
+        \global\let\colslen\len
+        \multirow{2}{*}{学号}&\multirow{2}{*}{姓名}&\multirow{2}{*}{班级}&\multicolumn{\colslen}{c|}{平时考勤}\\
+        \cline{4-\pgfplotstablecols}
+      }, 
+    },
+    % 每行后画线
+    after row={\hline},
+    % 表尾设计
+    every last row/.style={
+      % 考勤标记
+      after row={
+        \hline
+        \multicolumn{16}{|l|}{备注：出勤：$\surd$\ 缺勤：$\times$\ 迟
+          到：$\bigtriangleup$\ 早退：$\bigcirc$\ 事假：
+          $\bigtriangledown$\ 病假：$\oplus$}\\        
+        \hline
+      },
+    },
+    % 学号列
+    columns/stno/.style={string type,
+      column name={}, % 不输出标题名称
+      column type=|c,
+    },
+    % 姓名列
+    columns/name/.style={string type,
+      column name={},  % 不输出标题名称
+      postproc cell content/.append style={
+        /pgfplots/table/@cell content/.add={\begin{pinyinscope}}{\end{pinyinscope}},
+      },
+      column type=|c,
+    },
+    % 班级列
+    columns/class/.style={string type,
+      column name={},  % 不输出标题名称
+      column type=|c,
+    },
+    % 其它各列采用默认格式
+    % 备注列
+    columns/notes/.style={
+      column name={备注},
+      column type=c,
+    },  
+  ]{#1}% 也可以使用提前读入的\loadedtable
+}
 
-\def\coursename{C语言程序设计}
-\def\courseid{1091102}
-\def\courseidx{2}
-\def\teacher{耿楠}
 \begin{document} %在document环境中撰写文档
 \pagestyle{empty}
-\def\arraystretch{1.2}
-\pgfplotstabletypeset[
-  % 各列局中，带表格竖线
-  column type/.add={|c|}{},% results in ’|c’
-  % 表头设计
-  every head row/.style={
-    before row={
-      % \pgfplotstablecols为总列数
-      \multicolumn{\pgfplotstablecols}{c}{\bf\large 西北农林科技大学2019秋季学期学生课程考勤表}\\      
-      \multicolumn{\pgfplotstablecols}{l}{课程名称：\coursename\hfill 课程代码：\courseid\hfill 课序号：\courseidx\hfill 任课教师：\teacher}\\
-      \hline
-      % 计算平时考勤登记列数
-      \pgfmathtruncatemacro{\len}{\pgfplotstablecols-3}
-      % 将平时考勤登记列数存入\colslen宏
-      \global\let\colslen\len
-      \multirow{2}{*}{学号}&\multirow{2}{*}{姓名}&\multirow{2}{*}{班级}&\multicolumn{\colslen}{c|}{平时考勤}\\
-      \cline{4-\pgfplotstablecols}
-    }, 
-  },
-  % 每行后画线
-  after row={\hline},
-  % 表尾设计
-  every last row/.style={
-    % 考勤标记
-    after row={
-      \hline
-      \multicolumn{16}{|l|}{备注：出勤：$\surd$\ 缺勤：$\times$\ 迟到：$\bigtriangleup$\ 早退：$\bigcirc$\ 事假：$\bigtriangledown$\ 病假：$\oplus$}\\
-      \hline
-    },
-  },
-  % 学号列
-  columns/stno/.style={string type,
-    column name={}, % 不输出标题名称
-    column type=|c,
-  },
-  % 姓名列
-  columns/name/.style={string type,
-    column name={},  % 不输出标题名称
-    postproc cell content/.style={@cell content=\xpinyin*{##1}}, % 加注拼音
-    column type=|c,
-  },
-  % 班级列
-  columns/class/.style={string type,
-    column name={},  % 不输出标题名称
-    column type=|c,
-  },
-  % 其它各列采用默认格式
-  % 备注列
-  columns/notes/.style={
-    column name={备注},
-    column type=c,
-  },  
-]{\loadedtable}
-
+\xpynamelist
 % 如果需要多个班级，请准备数据后，用\newpage分页后，复制以上代码排版
 
 \end{document}
