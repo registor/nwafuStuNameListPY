@@ -66,18 +66,18 @@
   \pgfplotstableset{
     col sep=comma,
     header=true,
-    %font=\small,
+    %font=\small, % 更改表格字体
   }
   % 也可以提前读入文件，存入\loadedtable命名的内部数据结构中
   %\pgfplotstableread{namelist.csv}{\loadedtable}
   % 表格行高
-  \def\arraystretch{0.8}
-  \setlength\extrarowheight{5pt}  
-  \newcolumntype{C}{>{\centering\arraybackslash}p{3mm}}% a centered fixed-width-column
+  \def\arraystretch{0.8} % 更改表格行高
+  \setlength\extrarowheight{5pt} % 更改表格行内高度
+  % 定义局中对齐固定宽度的列格式C
+  \newcolumntype{C}{>{\centering\arraybackslash}p{3mm}}
   % 排版表格
   \pgfplotstabletypeset[
-    % 各列局中，带表格竖线
-    % column type/.add={|C|}{},% results in ’|c’
+    % 各列格式设置为C格式(固定宽度，局中)
     column type=|C,
     % 表头设计
     every head row/.style={
@@ -112,40 +112,46 @@
     % 序号列
     columns/idx/.style={string type,
       column name={}, % 不输出标题名称
-      column type=|c,
+      column type=|c, % 独立设置列格式
     },
     % 学号列
     columns/stno/.style={string type,
       column name={}, % 不输出标题名称
-      column type=|c,
+      column type=|c, % 独立设置列格式
     },
     % 姓名列
     columns/name/.style={string type,
       column name={},  % 不输出标题名称
+      % 采用后处理方式加注拼音
       postproc cell content/.append style={
         /pgfplots/table/@cell content/.add={\begin{pinyinscope}}{\end{pinyinscope}},
       },
-      column type=|c,
+      column type=|c, % 独立设置列格式
     },
     % 班级列
     columns/class/.style={string type,
-      column name={},  % 不输出标题名称
-      column type=|c,
+      column name={}, % 不输出标题名称
+      column type=|c, % 独立设置列格式
     },
     % 其它各列采用默认格式
     % 备注列
     columns/notes/.style={
       column name={备注},
-      column type=|c|,
+      column type=|c|, % 独立设置列格式
     },  
   ]{#1}% 也可以使用提前读入的\loadedtable
 }
 
 \begin{document} %在document环境中撰写文档
 \pagestyle{empty}
-\xpynamelist[namelist.csv]
-% 如果需要多个班级，请准备数据后，
+% 参数为学生名单数据文件
+% 注意：由于有参数默认值，所以需要用方括号
+\xpynamelist[namelist.csv] 
+
+% 如果需要多个班级，请准备数据，
 % 用\newpage分页后，复制以上代码排版并更换数据文件
+\newpage
+\xpynamelist[namelist.csv]
 
 \end{document}
 
