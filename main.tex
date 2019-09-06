@@ -26,7 +26,7 @@
 % 跨页表格宏包
 \usepackage{longtable}
 
-% 使用循环
+% 能够在tabular里使用循环的宏包
 \usepackage{xinttools}
 
 % 考勤表基本信息宏
@@ -119,7 +119,8 @@
         \pgfmathtruncatemacro{\repcols}{\pgfplotstablecols-5}
         % 将平时考勤登记列数存入\colslen宏
         \global\let\repcnt\repcols
-        %&&&&1&2&3&4&5&6&7&8&9&10&11&\repcnt&备注\\
+        % &&&&1&2&3&4&5&6&7&8&9&10&11&\repcnt&备注\\
+        % 循环产生跨页表头标题行
         &&&&\xintiloop [1+1]
           \xintiloopindex &
           \ifnum\repcnt>\xintiloopindex\space
@@ -136,25 +137,6 @@
         \endlastfoot
       }, 
     },
-    % every first row/.append style={
-    %   before row={
-    %     % \pgfplotstablecols为总列数
-    %     \multicolumn{\pgfplotstablecols}{c}{\bf\large \LaTeX{}通天大学\semester{}季学期学生课程考勤表}\\      
-    %     \multicolumn{\pgfplotstablecols}{l}{课程名称：
-    %       \coursename{}\hfill 课程代码：\courseid{}\hfill 课序号：
-    %       \courseidx{}\hfill 任课教师：\teacher{}}\\        
-    %     \hline
-    %     % 计算平时考勤登记列数
-    %     \pgfmathtruncatemacro{\len}{\pgfplotstablecols-4}
-    %     % 将平时考勤登记列数存入\colslen宏
-    %     \global\let\colslen\len
-    %     \multirow{2}{*}{序号}&\multirow{2}{*}{学号}&\multirow{2}{*}{姓名}&\multirow{2}{*}{班级}&\multicolumn{\colslen}{c|}{平时考勤}\\
-    %     \cline{5-\pgfplotstablecols}
-    %   },
-    %   after row={
-    %     \hline\endhead
-    %   },
-    % },     
     % 每行后画线
     before row={\hline},
     % 表尾设计
@@ -171,12 +153,12 @@
     % 序号列
     columns/idx/.style={string type,
       column name={}, % 不输出标题名称
-      column type=|c, % 独立设置列格式
+      column type=|@{}c@{}, % 独立设置列格式
     },
     % 学号列
     columns/stno/.style={string type,
       column name={}, % 不输出标题名称
-      column type=|c, % 独立设置列格式
+      column type=|@{\hspace{0.2em}}c@{\hspace{0.2em}}, % 独立设置列格式
     },
     % 姓名列
     columns/name/.style={string type,
@@ -185,12 +167,12 @@
       postproc cell content/.append style={
         /pgfplots/table/@cell content/.add={\begin{pinyinscope}}{\end{pinyinscope}},
       },
-      column type=|c, % 独立设置列格式
+      column type=|@{\hspace{0.1em}}c@{\hspace{0.1em}}, % 独立设置列格式
     },
     % 班级列
     columns/class/.style={string type,
       column name={}, % 不输出标题名称
-      column type=|c, % 独立设置列格式
+      column type=|@{\hspace{0.1em}}c@{\hspace{0.2em}}, % 独立设置列格式
     },
     % 其它各列采用默认格式
     % 备注列
