@@ -5,8 +5,8 @@
 \usepackage{geometry}
 \geometry{% 
   paper=a4paper,
-  top=1.3cm,
-  bottom=1.0cm,
+  top=2.5cm,
+  bottom=2.1cm,
   left=1.0cm,
   right=1.0cm,
   headheight=0.0cm,
@@ -23,6 +23,11 @@
 \usepackage{pgfplotstable}
 % 多行宏包
 \usepackage{multirow}
+% 跨页表格宏包
+\usepackage{longtable}
+
+% 使用循环
+\usepackage{xinttools}
 
 % 考勤表基本信息宏
 \def\semester{2019秋}
@@ -75,7 +80,11 @@
   % 定义局中对齐固定宽度的列格式C
   \newcolumntype{C}{>{\centering\arraybackslash}p{3mm}}
   % 排版表格
+  \centering
   \pgfplotstabletypeset[
+    % 使用longtable处理跨页表格
+    begin table=\begin{longtable},
+    end table=\end{longtable},
     % 各列格式设置为C格式(固定宽度，局中)
     column type=|C,
     % 表头设计
@@ -93,10 +102,61 @@
         \global\let\colslen\len
         \multirow{2}{*}{序号}&\multirow{2}{*}{学号}&\multirow{2}{*}{姓名}&\multirow{2}{*}{班级}&\multicolumn{\colslen}{c|}{平时考勤}\\
         \cline{5-\pgfplotstablecols}
+      },  
+      after row={        
+        % 生成跨页表头
+        \endfirsthead
+        %\multicolumn{\pgfplotstablecols}{l}{续前页}\\
+        \multicolumn{\pgfplotstablecols}{c}{\bf\large \LaTeX{}通天大学\semester{}季学期学生课程考勤表}\\      
+        \multicolumn{\pgfplotstablecols}{l}{课程名称：
+          \coursename{}\hfill 课程代码：\courseid{}\hfill 课序号：
+          \courseidx{}\hfill 任课教师：\teacher{}}\\
+        \hline
+        \multirow{2}{*}{序号}&\multirow{2}{*}{学号}&\multirow{2}{*}{姓名}&\multirow{2}{*}{班级}&\multicolumn{\colslen}{c|}{平时考
+          勤}\\
+        \cline{5-\pgfplotstablecols}
+        % 计算平时考勤登记列数
+        \pgfmathtruncatemacro{\repcols}{\pgfplotstablecols-5}
+        % 将平时考勤登记列数存入\colslen宏
+        \global\let\repcnt\repcols
+        %&&&&1&2&3&4&5&6&7&8&9&10&11&\repcnt&备注\\
+        &&&&\xintiloop [1+1]
+          \xintiloopindex &
+          \ifnum\repcnt>\xintiloopindex\space
+        \repeat
+        备注\\
+        \hline
+        \endhead        
+        \multicolumn{\pgfplotstablecols}{|l|}{备注：出勤：$\surd$\ 缺勤：$\times$\ 迟
+          到：$\bigtriangleup$\ 早退：$\bigcirc$\ 事假：
+          $\bigtriangledown$\ 病假：$\oplus$}\\        
+        \hline
+        %\multicolumn{\pgfplotstablecols}{r}{续下页} \\
+        \endfoot
+        \endlastfoot
       }, 
     },
+    % every first row/.append style={
+    %   before row={
+    %     % \pgfplotstablecols为总列数
+    %     \multicolumn{\pgfplotstablecols}{c}{\bf\large \LaTeX{}通天大学\semester{}季学期学生课程考勤表}\\      
+    %     \multicolumn{\pgfplotstablecols}{l}{课程名称：
+    %       \coursename{}\hfill 课程代码：\courseid{}\hfill 课序号：
+    %       \courseidx{}\hfill 任课教师：\teacher{}}\\        
+    %     \hline
+    %     % 计算平时考勤登记列数
+    %     \pgfmathtruncatemacro{\len}{\pgfplotstablecols-4}
+    %     % 将平时考勤登记列数存入\colslen宏
+    %     \global\let\colslen\len
+    %     \multirow{2}{*}{序号}&\multirow{2}{*}{学号}&\multirow{2}{*}{姓名}&\multirow{2}{*}{班级}&\multicolumn{\colslen}{c|}{平时考勤}\\
+    %     \cline{5-\pgfplotstablecols}
+    %   },
+    %   after row={
+    %     \hline\endhead
+    %   },
+    % },     
     % 每行后画线
-    after row={\hline},
+    before row={\hline},
     % 表尾设计
     every last row/.style={
       % 考勤标记
@@ -146,17 +206,17 @@
 % 参数为默认值
 \xpynamelist
 
-% 如果需要多个班级，请准备数据，
-% 用\newpage分页后，复制以上代码排版并更换数据文件
-\newpage
-% 参数为学生名单数据文件
-% 注意：由于有参数默认值，所以需要用方括号
-\xpynamelist[namelist01.csv]
+% % 如果需要多个班级，请准备数据，
+% % 用\newpage分页后，复制以上代码排版并更换数据文件
+% \newpage
+% % 参数为学生名单数据文件
+% % 注意：由于有参数默认值，所以需要用方括号
+% \xpynamelist[namelist01.csv]
 
-\newpage
-% 参数为学生名单数据文件
-% 注意：由于有参数默认值，所以需要用方括号
-\xpynamelist[namelist02.csv]
+% \newpage
+% % 参数为学生名单数据文件
+% % 注意：由于有参数默认值，所以需要用方括号
+% \xpynamelist[namelist02.csv]
 
 \end{document}
 
